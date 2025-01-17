@@ -88,7 +88,7 @@ public function sendMessage(Request $request)
 
 public function getMessages()
 {
-    $messages = Message::orderBy('created_at', 'asc')->take(50)->get();
+    $messages = Message::orderBy('created_at', 'asc')->take(10)->get();
     return response()->json($messages);
 }
 public function getNewMessages(Request $request)

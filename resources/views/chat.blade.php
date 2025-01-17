@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
     <!-- Pusher CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pusher/7.2.0/pusher.min.js"></script>
@@ -11,62 +14,66 @@
         const PUSHER_APP_KEY = "{{ env('PUSHER_APP_KEY') }}";
         const PUSHER_APP_CLUSTER = "{{ env('PUSHER_APP_CLUSTER') }}";
     </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <style>
-        #chatBox {
-            width: 50%;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        body {
+            background-color: #f0f2f5;
         }
-        #messages {
-            list-style-type: none;
-            padding: 0;
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
+
+        .fixed-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50;
         }
-        #messages li {
-            padding: 5px 10px;
-            border-bottom: 1px solid #f0f0f0;
+
+        .fixed-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50;
         }
-        #messageForm {
-            display: flex;
-        }
-        #messageForm input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 10px;
-        }
-        #messageForm button {
-            padding: 10px 15px;
-            border: none;
-            background-color: #28a745;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #messageForm button:hover {
-            background-color: #218838;
+
+        .content-wrapper {
+            margin-top: 3rem;
+            margin-bottom: 4rem;
         }
     </style>
 </head>
-<body>
-    <div id="chatBox">
-        <ul id="messages">
-           
+
+<body class="min-h-screen flex flex-col">
+    <nav class="bg-black text-white py-3 px-4 shadow-md fixed-top">
+        <img class="img-chat" src="{{ asset('img/logo.png') }}" alt="Logo">
+    </nav>
+
+    <div class="flex flex-col flex-1 mx-auto w-full max-w-md bg-white shadow-md rounded-t-lg relative content-wrapper">
+        <!-- Chat Messages -->
+        <ul id="messages" class="flex-1 overflow-y-auto p-4 space-y-4">
         </ul>
-        <form id="messageForm">
-            <input type="text" id="message" placeholder="Type a message" maxlength="255" required>
-            <button type="submit">Send</button>
-        </form>
     </div>
+
+    <!-- Message Form -->
+    <form id="messageForm" class="flex items-center px-4 py-3 border-t bg-gray-50 fixed-bottom">
+        <input 
+            type="text" 
+            id="message" 
+            placeholder="Type a message" 
+            maxlength="255" 
+           autofocus
+            required 
+             autocomplete="off"
+            class="flex-1 px-4 py-2 border rounded-full focus:ring"
+        >
+        <button 
+            type="submit" 
+            class="ml-3 px-4 py-2 text-white bg-black rounded-full hover:bg-gray-800 focus:ring"
+        >
+            Send
+        </button>
+    </form>
 
     <script>
         // Inisialisasi Pusher
@@ -85,6 +92,7 @@
             const messageList = document.getElementById("messages");
             const li = document.createElement("li");
             li.textContent = `${data.message.username}: ${data.message.message}`;
+            li.classList.add("px-4", "py-2", "bg-gray-200", "rounded-lg", "shadow-sm", "w-fit", "max-w-xs");
             messageList.appendChild(li);
 
             // Scroll otomatis ke bawah untuk pesan terbaru
@@ -97,7 +105,7 @@
                 .then(response => {
                     const messages = response.data;
                     const messageList = document.getElementById("messages");
-                    
+
                     // Hapus semua pesan lama
                     messageList.innerHTML = '';
 
@@ -105,6 +113,7 @@
                     messages.forEach(msg => {
                         const li = document.createElement("li");
                         li.textContent = `${msg.username}: ${msg.message}`;
+                        li.classList.add("px-4", "py-2", "bg-gray-200", "rounded-lg", "shadow-sm", "w-fit", "max-w-xs");
                         messageList.appendChild(li);
                     });
                 })
@@ -112,7 +121,6 @@
                     console.error("Error loading messages:", error);
                 });
         }
-
 
         loadMessages();
 
@@ -123,7 +131,6 @@
             const messageInput = document.getElementById("message");
             const message = messageInput.value;
 
-      
             axios.post('/send-message', {
                 message: message,
             })
@@ -134,35 +141,35 @@
                 console.error("Error sending message:", error);
             });
         });
+
         let lastMessageId = 0; 
 
-function fetchNewMessages() {
-    axios.get('/get-new-messages', {
-        params: { last_message_id: lastMessageId },
-    })
-    .then(response => {
-        const messages = response.data;
-        const messageList = document.getElementById("messages");
+        function fetchNewMessages() {
+            axios.get('/get-new-messages', {
+                params: { last_message_id: lastMessageId },
+            })
+            .then(response => {
+                const messages = response.data;
+                const messageList = document.getElementById("messages");
 
-        messages.forEach(msg => {
-            
-            const li = document.createElement("li");
-            li.textContent = `${msg.username}: ${msg.message}`;
-            messageList.appendChild(li);
+                messages.forEach(msg => {
+                    const li = document.createElement("li");
+                    li.textContent = `${msg.username}: ${msg.message}`;
+                    li.classList.add("px-4", "py-2", "bg-gray-200", "rounded-lg", "shadow-sm", "w-fit", "max-w-xs");
+                    messageList.appendChild(li);
 
-            lastMessageId = msg.id;
-        });
+                    lastMessageId = msg.id;
+                });
 
- 
-        messageList.scrollTop = messageList.scrollHeight;
-    })
-    .catch(error => {
-        console.error("Error fetching new messages:", error);
-    });
-}
+                messageList.scrollTop = messageList.scrollHeight;
+            })
+            .catch(error => {
+                console.error("Error fetching new messages:", error);
+            });
+        }
 
-
-setInterval(fetchNewMessages, 4000);
+        setInterval(fetchNewMessages, 4000);
     </script>
 </body>
+
 </html>

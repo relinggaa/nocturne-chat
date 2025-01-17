@@ -1,0 +1,13 @@
+.form-user {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 70%;
+    margin-bottom: 45vh;
+}
+.form-user input:focus {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+.img-chat {
+    width: 50%;
+}
